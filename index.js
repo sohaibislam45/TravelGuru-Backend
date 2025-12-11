@@ -18,7 +18,7 @@ app.use((err, req, res, next) => {
 
 const baseUri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.4lapvpm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
-console.log("MongoDB URI configured:", baseUri.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")); // Hide credentials in logs
+// console.log("MongoDB URI configured:", baseUri.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")); // Hide credentials in logs
 
 // Create a MongoClient with minimal options to avoid SSL issues
 // Sometimes less configuration works better with certain OpenSSL versions
@@ -281,7 +281,7 @@ async function run() {
     try {
       if (client.topology && client.topology.isConnected()) {
         console.log("Closing existing connection...");
-        await client.close();
+        // await client.close();
       }
     } catch (closeError) {
       // Ignore close errors
@@ -291,25 +291,25 @@ async function run() {
     console.log("Note: If this fails with SSL error, check MongoDB Atlas Network Access");
     console.log("      Your IP must be whitelisted at: https://cloud.mongodb.com/v2#/security/network/whitelist");
     
-    await client.connect();
-    console.log("✅ MongoDB client connected successfully.");
+    // await client.connect();
+    console.log("MongoDB client connected successfully.");
 
     const db = client.db("vehicles-db");
     vehicles = db.collection("vehicles");
     bookings = db.collection("bookings");
-    console.log("✅ Database and collections initialized.");
+    console.log("Database and collections initialized.");
 
-    await client.db("admin").command({ ping: 1 });
-    console.log("✅ Ping successful - MongoDB connection verified!");
+    // await client.db("admin").command({ ping: 1 });
+    console.log("Ping successful - MongoDB connection verified!");
     
     dbConnected = true;
     reconnectAttempts = 0; // Reset counter on success
-    console.log("✅ Database connection established. All routes are now active.");
+    console.log("Database connection established. All routes are now active.");
     console.log(`${'='.repeat(60)}\n`);
   } catch (error) {
     dbConnected = false;
     console.error(`\n${'='.repeat(60)}`);
-    console.error("❌ FAILED TO CONNECT TO MONGODB");
+    console.error("FAILED TO CONNECT TO MONGODB");
     console.error(`${'='.repeat(60)}`);
     console.error("Error Details:");
     console.error("  - Error name:", error.name);
@@ -318,21 +318,21 @@ async function run() {
     
     // Provide helpful error messages
     if (error.message.includes("authentication failed") || error.code === 18 || error.codeName === "AuthenticationFailed") {
-      console.error("\n🔍 DIAGNOSIS: Authentication failed");
+      console.error("\n DIAGNOSIS: Authentication failed");
       console.error("   Possible causes:");
       console.error("   1. Incorrect username or password in connection string");
       console.error("   2. User doesn't exist in MongoDB Atlas");
       console.error("   3. User doesn't have proper permissions");
       console.error("   Solution: Check your MongoDB Atlas Database Access settings");
     } else if (error.message.includes("ENOTFOUND") || error.message.includes("getaddrinfo") || error.code === "ENOTFOUND") {
-      console.error("\n🔍 DIAGNOSIS: DNS resolution failed");
+      console.error("\n DIAGNOSIS: DNS resolution failed");
       console.error("   Possible causes:");
       console.error("   1. No internet connection");
       console.error("   2. Incorrect cluster URL");
       console.error("   3. DNS server issues");
       console.error("   Solution: Check your internet connection and cluster URL");
     } else if (error.message.includes("SSL") || error.message.includes("TLS") || error.code === "ECONNRESET") {
-      console.error("\n🔍 DIAGNOSIS: SSL/TLS connection error");
+      console.error("\n DIAGNOSIS: SSL/TLS connection error");
       console.error("   Possible causes:");
       console.error("   1. IP address not whitelisted in MongoDB Atlas Network Access");
       console.error("   2. Firewall blocking the connection");
@@ -342,14 +342,14 @@ async function run() {
       console.error("   - Add your IP address (or 0.0.0.0/0 for development)");
       console.error("   - Wait 1-2 minutes for changes to propagate");
     } else if (error.message.includes("timeout") || error.code === "ETIMEDOUT") {
-      console.error("\n🔍 DIAGNOSIS: Connection timeout");
+      console.error("\n DIAGNOSIS: Connection timeout");
       console.error("   Possible causes:");
       console.error("   1. MongoDB cluster is paused or unavailable");
       console.error("   2. Network connectivity issues");
       console.error("   3. Firewall blocking the connection");
       console.error("   Solution: Check MongoDB Atlas cluster status");
     } else {
-      console.error("\n🔍 DIAGNOSIS: Unknown connection error");
+      console.error("\n DIAGNOSIS: Unknown connection error");
       console.error("   Full error details:");
       if (error.stack) {
         console.error(error.stack);
@@ -361,7 +361,7 @@ async function run() {
     // Try to reconnect after a delay (with exponential backoff)
     if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
       const delay = Math.min(5000 * Math.pow(2, reconnectAttempts - 1), 30000); // Max 30 seconds
-      console.log(`⏳ Will retry connection in ${delay / 1000} seconds...`);
+      console.log(` Will retry connection in ${delay / 1000} seconds...`);
       console.log(`   (You can check /health endpoint for status)\n`);
       
       if (reconnectTimer) {
@@ -371,7 +371,7 @@ async function run() {
         run().catch(console.dir);
       }, delay);
     } else {
-      console.error(`\n❌ Maximum reconnection attempts (${MAX_RECONNECT_ATTEMPTS}) reached.`);
+      console.error(`\n Maximum reconnection attempts (${MAX_RECONNECT_ATTEMPTS}) reached.`);
       console.error("   Please check your MongoDB connection settings and restart the server.");
       console.error("   Common fixes:");
       console.error("   1. Verify MongoDB Atlas Network Access (whitelist your IP)");
@@ -403,7 +403,7 @@ app.get("/health", (req, res) => {
 // Manual reconnect endpoint (for troubleshooting)
 app.post("/reconnect", async (req, res) => {
   try {
-    console.log("\n🔄 Manual reconnection triggered via API...");
+    console.log("\n Manual reconnection triggered via API...");
     if (reconnectTimer) {
       clearTimeout(reconnectTimer);
     }
