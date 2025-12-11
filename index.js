@@ -3,7 +3,7 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 3000;
-
+require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
@@ -16,10 +16,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// MongoDB connection string - can be overridden with environment variable
-// Try without explicit database name first, then specify in connection
-const baseUri = process.env.MONGODB_URI || 
-  "mongodb+srv://sohaib:test123@cluster0.4lapvpm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const baseUri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.4lapvpm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 console.log("MongoDB URI configured:", baseUri.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")); // Hide credentials in logs
 
